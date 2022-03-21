@@ -9,6 +9,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
+#include "CalibrationAndARfxns.cpp"
+#include "CalibrationAndARfxns.h"
 
 using namespace cv;
 
@@ -43,8 +45,6 @@ int main(int argc, const char *argv[])
         cv::namedWindow("Video", 1);
         cv::Mat frame;
         int k = 0;
-        int setOnce = 0;
-        std::string objectLabel;
 
         for (;;)
         {
@@ -52,13 +52,13 @@ int main(int argc, const char *argv[])
             {
                 delete capdev;
                 capdev = new cv::VideoCapture(0);
-                // resetDistanceMetrics();
-                // setOnce = 0;
-                /// currentFeatures = "";
-                // objectLabel = "";
-                // pNearestNeighbors = "";
             }
             *capdev >> frame;
+
+            if (k >= 1) // detect and extract chessboard corners (Q1)
+            {
+                detectAndExtractCorners(frame, frame);
+            }
 
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
@@ -66,6 +66,10 @@ int main(int argc, const char *argv[])
             if (key == 'q')
             {
                 break;
+            }
+            else if (key == 'd') // detect and extract chessboard corners (Q1)
+            {
+                k = 1;
             }
         }
         delete capdev;

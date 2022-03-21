@@ -460,4 +460,12 @@ CMakeFiles/cs5300-project4-calibrationAndAugmentedReality.dir/main.cpp.o: \
   /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/videoio.hpp \
   /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/imgproc.hpp \
   /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/./imgproc/segmentation.hpp \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/iostream
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/iostream \
+  /Users/kaelynjefferson/Documents/NEU/MSCS/MSCS\ semesters/2022\ Spring/CS5300-project4-calibrationAndAugmentedReality/CalibrationAndARfxns.cpp \
+  /Users/kaelynjefferson/Documents/NEU/MSCS/MSCS\ semesters/2022\ Spring/CS5300-project4-calibrationAndAugmentedReality/CalibrationAndARfxns.h \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/calib3d.hpp \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/features2d.hpp \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/miniflann.hpp \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/defines.h \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/config.h \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/core/affine.hpp

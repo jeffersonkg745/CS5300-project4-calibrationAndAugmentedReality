@@ -462,8 +462,26 @@ CMakeFiles/cs5300-project4-calibrationAndAugmentedReality.dir/main.cpp.o: main.c
   /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/videoio.hpp \
   /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/imgproc.hpp \
   /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/imgproc/segmentation.hpp \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/iostream
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/iostream \
+  CalibrationAndARfxns.cpp \
+  CalibrationAndARfxns.h \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/calib3d.hpp \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/features2d.hpp \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/miniflann.hpp \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/defines.h \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/config.h \
+  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/core/affine.hpp
 
+
+/usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/core/affine.hpp:
+
+/usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/config.h:
+
+/usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/miniflann.hpp:
+
+CalibrationAndARfxns.h:
+
+CalibrationAndARfxns.cpp:
 
 /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/imgproc.hpp:
 
@@ -486,6 +504,8 @@ CMakeFiles/cs5300-project4-calibrationAndAugmentedReality.dir/main.cpp.o: main.c
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_types/_fd_clr.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_types/_suseconds_t.h:
+
+/usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/features2d.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_types/_useconds_t.h:
 
@@ -827,6 +847,8 @@ CMakeFiles/cs5300-project4-calibrationAndAugmentedReality.dir/main.cpp.o: main.c
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_pthread/_pthread_once_t.h:
 
+/usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/calib3d.hpp:
+
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_pthread/_pthread_mutex_t.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_pthread/_pthread_key_t.h:
@@ -1092,6 +1114,8 @@ CMakeFiles/cs5300-project4-calibrationAndAugmentedReality.dir/main.cpp.o: main.c
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/_ctermid.h:
 
 /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/core/saturate.hpp:
+
+/usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/defines.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/_stdio.h:
 
