@@ -9,8 +9,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
-#include "ORfxns.cpp"
-#include "ORfxns.h"
+
 using namespace cv;
 
 /**
@@ -53,11 +52,11 @@ int main(int argc, const char *argv[])
             {
                 delete capdev;
                 capdev = new cv::VideoCapture(0);
-                resetDistanceMetrics();
-                setOnce = 0;
-                currentFeatures = "";
-                objectLabel = "";
-                pNearestNeighbors = "";
+                // resetDistanceMetrics();
+                // setOnce = 0;
+                /// currentFeatures = "";
+                // objectLabel = "";
+                // pNearestNeighbors = "";
             }
             *capdev >> frame;
 
@@ -75,7 +74,7 @@ int main(int argc, const char *argv[])
 
     if (std::string(argv[1]) == ("photo"))
     {
-        cv::Mat img = imread("/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/cs5300-project3/TenObjects/unknown10.jpg", cv::IMREAD_COLOR);
+        cv::Mat img = imread("/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/CS5300-project4-calibrationAndAugmentedReality/checkerboard.png", cv::IMREAD_COLOR);
         cv::Mat dst;
         std::string currentFeatures;
 
