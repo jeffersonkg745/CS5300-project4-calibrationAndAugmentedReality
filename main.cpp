@@ -18,11 +18,14 @@ using namespace cv;
  * @brief Main function starts video/photo input and listens for user key functions in the Object recognition system.
  *
  * @param argc 2 values
- * @param argv "cs5300-project3 photo", "cs5300-project3 video"
+ * @param argv "./cs5300-project4-calibrationAndAugmentedReality video"
  * @return int
  */
 int main(int argc, const char *argv[])
 {
+
+    std::vector<std::vector<cv::Vec3f>> point_list;    // keeps list of 3d pos in world coordinates of corners
+    std::vector<std::vector<cv::Point2f>> corner_list; // keeps list of all corner coordinates
 
     // does OR techniques on live video
     if (std::string(argv[1]) == ("video"))
@@ -55,9 +58,23 @@ int main(int argc, const char *argv[])
             }
             *capdev >> frame;
 
-            if (k >= 1) // detect and extract chessboard corners (Q1)
+            if (k == 1) // detect and extract chessboard corners (Q1)
             {
-                detectAndExtractCorners(frame, frame);
+                detectAndExtractCorners(frame, frame, 0, point_list, corner_list);
+            }
+            else if (k == 2) // select calibration images (Q2)
+            {
+                // user selects calibration images and updates point_list and corner_list used in question 3
+                detectAndExtractCorners(frame, frame, 1, point_list, corner_list);
+                std::cout << point_list.size() << std::endl;
+                std::cout << corner_list.size() << std::endl;
+
+                // saving the image we calibrated with (will overwrite current images if they exist)
+                std::string imageNum = std::to_string(point_list.size());
+                std::string path = "/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/CS5300-project4-calibrationAndAugmentedReality/imagesUsedForCalibration/" + imageNum + ".jpg";
+                imwrite(path, frame);
+
+                k = 1;
             }
 
             cv::imshow("Video", frame);
@@ -70,6 +87,10 @@ int main(int argc, const char *argv[])
             else if (key == 'd') // detect and extract chessboard corners (Q1)
             {
                 k = 1;
+            }
+            else if (key == 's') // select calibration images (Q2)
+            {
+                k = 2;
             }
         }
         delete capdev;
