@@ -8,6 +8,6 @@
 #define CALIBRATIONANDARFXNS_H
 
 // Detect and extract chessboard corners(Q1)
-int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst);
+int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst, int num);
 
 #endif /* CALIBRATIONANDARFXNS_H */

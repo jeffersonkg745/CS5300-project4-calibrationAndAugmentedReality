@@ -8,6 +8,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core/types.hpp>
 #include <iostream>
+#include <vector>
 
 /**
  * @brief Question 1: Detect and extract the chessboard corners (using checkerboard.png).
@@ -17,8 +18,11 @@
  * @return int
  * https://github.com/opencv/opencv/blob/4.x/samples/cpp/tutorial_code/calib3d/camera_calibration/camera_calibration.cpp
  */
-int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst)
+int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst, int num, std::vector<std::vector<cv::Vec3f>> &point_list, std::vector<std::vector<cv::Point2f>> &corner_list)
 {
+    // use for question 2
+    std::vector<cv::Vec3f> point_set;
+
     cv::Size pattern_size(9, 6);
 
     std::vector<cv::Point2f> corner_set;
@@ -34,7 +38,62 @@ int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst)
     }
 
     cv::drawChessboardCorners(dst, pattern_size, cv::Mat(corner_set), pattern_found);
-    // std::cout << "num of corners: " << corner_set[1].x << std::endl;
+
+    // save new calibration image for problem 2
+    if (num == 1)
+    {
+        corner_list.push_back(corner_set);
+
+        // measure the "real world units" by counting units of checkerboard squares
+        // for (int i = 0; i < corner_set.size(); i++)
+        // {
+        //     std::cout << "corner set: x=" << corner_set[i].x << " y=" << corner_set[i].y << std::endl;
+        // }
+
+        int xCoord = 0;
+        int yCoord = 0;
+
+        for (int i = 0; i < corner_set.size(); i++)
+        {
+
+            cv::Vec3f currentCorner = {0, 0, 0}; // {x,y,z}
+
+            currentCorner[0] = xCoord; // x in our case increases going from left to right on the board
+            currentCorner[1] = yCoord; // y in our case increases as go top to bottom on the board
+            currentCorner[2] = 0;      // z is always zero in our case since it points out of the board (+z is pointing away from board)
+
+            // add points to point list
+            point_set.push_back(currentCorner);
+            std::cout << i << std::endl;
+            std::cout << currentCorner << std::endl;
+
+            // std::cout << "corner set: x=" << corner_set[i].x << " y=" << corner_set[i].y << std::endl;
+            // std::cout << "our corner in real coord: x=" << currentCorner[0] << "z=" << currentCorner[1] << "y=" << currentCorner[2] << std::endl;
+
+            if (xCoord == 8)
+            {
+                xCoord = 0;
+                yCoord += 1;
+                continue;
+            }
+
+            xCoord += 1;
+        }
+
+        // add the point set to the point list
+        point_list.push_back(point_set);
+
+        // error checking here
+        if (point_set.size() != corner_set.size())
+        {
+            std::cout << "Point set and corner set should have same number of values." << std::endl;
+        }
+
+        if (point_list.size() != corner_list.size())
+        {
+            std::cout << "Point list and corner list should have same number of values." << std::endl;
+        }
+    }
 
     return 0;
 }
