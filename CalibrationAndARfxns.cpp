@@ -334,10 +334,12 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
         z += 1;
     }
 
-    for (int i = 0; i < dist_coefficients.size(); i++)
-    {
-        std::cout << dist_coefficients[i] << std::endl;
-    }
+    /*
+        for (int i = 0; i < dist_coefficients.size(); i++)
+        {
+            std::cout << dist_coefficients[i] << std::endl;
+        }
+        */
 
     // std::vector<float> rvec;
     // std::vector<float> tvec;
@@ -346,6 +348,7 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
 
     cv::solvePnP(objectPoints, imagePoints, camera_matrix, dist_coefficients, rvec, tvec);
 
+    std::cout << "\nRVEC: " << std::endl;
     for (int i = 0; i < rvec.rows; i++)
     {
         for (int j = 0; j < rvec.cols; j++)
@@ -353,6 +356,20 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
             std::cout << rvec.at<cv::Vec2f>(i, j) << std::endl;
         }
     }
+
+    std::cout << "\nTVEC: " << std::endl;
+    for (int i = 0; i < tvec.rows; i++)
+    {
+        for (int j = 0; j < tvec.cols; j++)
+        {
+            std::cout << tvec.at<cv::Vec2f>(i, j) << std::endl;
+        }
+    }
+
+    // std::cout << rvec.rows << std::endl; //3
+    // std::cout << rvec.cols << std::endl; //1
+    // std::cout << tvec.rows << std::endl;
+    // std::cout << tvec.cols << std::endl;
 
     return 0;
 }

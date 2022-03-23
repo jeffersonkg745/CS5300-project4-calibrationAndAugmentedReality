@@ -100,7 +100,7 @@ int main(int argc, const char *argv[])
                 if (point_list.size() > 0)
                 {
                     calcPosOfCamera(point_list, corner_list);
-                    k = 6;
+                    // k = 6;
                 }
             }
 
