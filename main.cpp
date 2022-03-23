@@ -14,7 +14,6 @@
 #include <opencv2/calib3d.hpp>
 #include <string>
 #include <cstring>
-
 #include <fstream>
 using namespace cv;
 
@@ -93,6 +92,17 @@ int main(int argc, const char *argv[])
 
                 k = 4;
             }
+            else if (k == 5) // calculate the current position of the camera (task 4)
+            {
+                detectAndExtractCorners(frame, frame, 1, point_list, corner_list);
+
+                // loops through continuously trying to detec the corners until it finds them, then calc the pos of the camera
+                if (point_list.size() > 0)
+                {
+                    calcPosOfCamera(point_list, corner_list);
+                    k = 6;
+                }
+            }
 
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
@@ -109,9 +119,13 @@ int main(int argc, const char *argv[])
             {
                 k = 2;
             }
-            else if (key == 'c') // select calibration images (Q2)
+            else if (key == 'c') // calibrate the camera (task 3)
             {
                 k = 3;
+            }
+            else if (key == 'p') // calculate the current position of the camera (task 4)
+            {
+                k = 5;
             }
         }
         delete capdev;
