@@ -51,27 +51,29 @@ int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst, int num, std::vector<std
         // }
 
         int xCoord = 0;
-        int zCoord = 0;
+        int yCoord = 0;
 
         for (int i = 0; i < corner_set.size(); i++)
         {
 
-            cv::Vec3f currentCorner = {0, 0, 0};
+            cv::Vec3f currentCorner = {0, 0, 0}; // {x,y,z}
 
-            currentCorner[0] = xCoord;
-            currentCorner[1] = zCoord;
-            currentCorner[2] = 0; // y is always zero in our case?
+            currentCorner[0] = xCoord; // x in our case increases going from left to right on the board
+            currentCorner[1] = yCoord; // y in our case increases as go top to bottom on the board
+            currentCorner[2] = 0;      // z is always zero in our case since it points out of the board (+z is pointing away from board)
 
             // add points to point list
             point_set.push_back(currentCorner);
+            std::cout << i << std::endl;
+            std::cout << currentCorner << std::endl;
 
             // std::cout << "corner set: x=" << corner_set[i].x << " y=" << corner_set[i].y << std::endl;
             // std::cout << "our corner in real coord: x=" << currentCorner[0] << "z=" << currentCorner[1] << "y=" << currentCorner[2] << std::endl;
 
-            if (xCoord == 9)
+            if (xCoord == 8)
             {
                 xCoord = 0;
-                zCoord += 1;
+                yCoord += 1;
                 continue;
             }
 
