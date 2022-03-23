@@ -125,7 +125,7 @@ std::string printMatrix(cv::Mat camera_matrix)
         for (int j = 0; j < camera_matrix.cols; j++)
         {
             std::cout << camera_matrix.at<cv::Vec2f>(i, j) << std::endl;
-            std::string s = "[" + std::to_string(camera_matrix.at<cv::Vec2f>(i, j)[0]) + ", " + std::to_string(camera_matrix.at<cv::Vec2f>(i, j)[1]) + "]";
+            std::string s = std::to_string(camera_matrix.at<cv::Vec2f>(i, j)[0]) + ", " + std::to_string(camera_matrix.at<cv::Vec2f>(i, j)[1]);
             cameraMatStr.append(s);
             cameraMatStr.append(", ");
         }
@@ -199,6 +199,177 @@ int calibrateOurCamera(cv::Mat &frame, std::vector<std::vector<cv::Vec3f>> &poin
 
     writeToFile("CameraMatrix.txt", cameraMatStr);
     writeToFile("DistortionCoefficients.txt", distortionCoefficients);
+
+    return 0;
+}
+
+std::string getLastLineOfFile(std::string fileName)
+{
+
+    std::ifstream myfile;
+    myfile.open(fileName);
+    std::string myline;
+    std::string s = "";
+
+    if (myfile.is_open())
+    {
+        while (myfile)
+        {
+            std::getline(myfile, myline);
+
+            // keep adding to this string so will end on the last line
+            if (myline.size() != 0)
+            {
+                s = myline;
+            }
+        }
+    }
+    myfile.close();
+
+    return s;
+}
+
+int getMatrixFromString(std::string matrixString, cv::Mat &camera_matrix)
+{
+    cv::Size matrix_size(3, 3);
+    camera_matrix.create(matrix_size, CV_64FC1);
+
+    std::cout << matrixString << std::endl;
+
+    std::string str = matrixString;
+    int i = 0;
+    int j = 0;
+    while (str.length() > 5)
+    {
+
+        cv::Vec2f vec = {0, 0};
+
+        std::string matrixPart = str.substr(0, str.find(",") + 1);
+        std::remove(matrixPart.begin(), matrixPart.end(), ' ');
+        vec[0] = atof(matrixPart.c_str());
+        str.erase(0, str.find(",") + 1);
+
+        // std::cout << vec[0] << std::endl;
+
+        std::string matrixPart2 = str.substr(0, str.find(",") + 1);
+        std::remove(matrixPart.begin(), matrixPart.end(), ' ');
+        vec[1] = atof(matrixPart2.c_str());
+        str.erase(0, str.find(",") + 1);
+
+        // camera_matrix.at<cv::Vec2f>(i, j)[0] = vec[0];
+        // camera_matrix.at<cv::Vec2f>(i, j)[1] = vec[1];
+
+        camera_matrix.at<cv::Vec2f>(i, j) = vec;
+        std::cout << camera_matrix.at<cv::Vec2f>(i, j) << std::endl;
+
+        // std::cout << vec[1] << std::endl;
+
+        i += 1;
+        if (i == 3)
+        {
+            i = 0;
+            j += 1;
+        }
+    }
+
+    return 0;
+}
+
+int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<std::vector<cv::Point2f>> corner_list)
+{
+    // get points and corners of the frame that was detected with the board
+    std::vector<cv::Vec3f> objectPoints = point_list[point_list.size() - 1];
+    std::vector<cv::Point2f> imagePoints = corner_list[corner_list.size() - 1];
+
+    // http://www.learningaboutelectronics.com/Articles/How-to-count-the-number-of-lines-in-a-file-C++.php
+    std::string matrixString = getLastLineOfFile("CameraMatrix.txt");
+
+    // format strings into appropriate matrix and vector data structures
+    cv::Mat camera_matrix;
+    // getMatrixFromString(matrixString, camera_matrix); //instead of calling, put below for now
+
+    // TODO: FIX PROBLEM WITH HELPER FXN
+    cv::Size matrix_size(3, 3);
+    camera_matrix.create(matrix_size, CV_64FC1);
+    // std::cout << matrixString << std::endl;
+    std::string str = matrixString;
+    int i = 0;
+    int j = 0;
+    while (str.length() > 5)
+    {
+        cv::Vec2f vec = {0, 0};
+        std::string matrixPart = str.substr(0, str.find(",") + 1);
+        std::remove(matrixPart.begin(), matrixPart.end(), ' ');
+        vec[0] = atof(matrixPart.c_str());
+        str.erase(0, str.find(",") + 1);
+        std::string matrixPart2 = str.substr(0, str.find(",") + 1);
+        std::remove(matrixPart.begin(), matrixPart.end(), ' ');
+        vec[1] = atof(matrixPart2.c_str());
+        str.erase(0, str.find(",") + 1);
+        camera_matrix.at<cv::Vec2f>(i, j) = vec;
+        // std::cout << camera_matrix.at<cv::Vec2f>(i, j) << std::endl;
+
+        i += 1;
+        if (i == 3)
+        {
+            i = 0;
+            j += 1;
+        }
+    }
+
+    // get the vector from the last line in the distortion coefficients
+    std::vector<float> dist_coefficients;
+    cv::Mat dist_coeff;
+    std::string distString = getLastLineOfFile("DistortionCoefficients.txt");
+    std::remove(distString.begin(), distString.end(), ' ');
+
+    int z = 0;
+    while (distString.length() > 6)
+    {
+        std::string num = distString.substr(0, distString.find(","));
+        float numFloat = std::stof(num);
+        dist_coefficients.push_back(numFloat);
+        // dist_coeff.at<cv::Vec2f>(0, z) = numFloat;
+        distString.erase(0, distString.find(",") + 1);
+        z += 1;
+    }
+
+    /*
+        for (int i = 0; i < dist_coefficients.size(); i++)
+        {
+            std::cout << dist_coefficients[i] << std::endl;
+        }
+        */
+
+    // std::vector<float> rvec;
+    // std::vector<float> tvec;
+    cv::Mat rvec;
+    cv::Mat tvec;
+
+    cv::solvePnP(objectPoints, imagePoints, camera_matrix, dist_coefficients, rvec, tvec);
+
+    std::cout << "\nRVEC: " << std::endl;
+    for (int i = 0; i < rvec.rows; i++)
+    {
+        for (int j = 0; j < rvec.cols; j++)
+        {
+            std::cout << rvec.at<cv::Vec2f>(i, j) << std::endl;
+        }
+    }
+
+    std::cout << "\nTVEC: " << std::endl;
+    for (int i = 0; i < tvec.rows; i++)
+    {
+        for (int j = 0; j < tvec.cols; j++)
+        {
+            std::cout << tvec.at<cv::Vec2f>(i, j) << std::endl;
+        }
+    }
+
+    // std::cout << rvec.rows << std::endl; //3
+    // std::cout << rvec.cols << std::endl; //1
+    // std::cout << tvec.rows << std::endl;
+    // std::cout << tvec.cols << std::endl;
 
     return 0;
 }
