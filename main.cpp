@@ -11,7 +11,11 @@
 #include <iostream>
 #include "CalibrationAndARfxns.cpp"
 #include "CalibrationAndARfxns.h"
+#include <opencv2/calib3d.hpp>
+#include <string>
+#include <cstring>
 
+#include <fstream>
 using namespace cv;
 
 /**
@@ -76,6 +80,19 @@ int main(int argc, const char *argv[])
 
                 k = 1;
             }
+            else if (k == 3) // calibrate the camera (task 3)
+            {
+
+                // only calibrate the camera if we have 5 images
+                if (corner_list.size() < 5)
+                {
+                    k = 1;
+                }
+
+                calibrateOurCamera(frame, point_list, corner_list);
+
+                k = 4;
+            }
 
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
@@ -91,6 +108,10 @@ int main(int argc, const char *argv[])
             else if (key == 's') // select calibration images (Q2)
             {
                 k = 2;
+            }
+            else if (key == 'c') // select calibration images (Q2)
+            {
+                k = 3;
             }
         }
         delete capdev;

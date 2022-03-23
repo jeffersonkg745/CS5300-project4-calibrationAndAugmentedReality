@@ -472,4 +472,9 @@ CMakeFiles/cs5300-project4-calibrationAndAugmentedReality.dir/main.cpp.o
  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/defines.h
  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/flann/config.h
  /usr/local/Cellar/opencv/4.5.4_4/include/opencv4/opencv2/core/affine.hpp
+ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/fstream
+ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/filesystem
+ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/stack
+ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/deque
+ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/iomanip
 
