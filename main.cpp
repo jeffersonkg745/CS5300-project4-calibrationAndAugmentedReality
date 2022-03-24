@@ -30,6 +30,11 @@ int main(int argc, const char *argv[])
     std::vector<std::vector<cv::Vec3f>> point_list;    // keeps list of 3d pos in world coordinates of corners
     std::vector<std::vector<cv::Point2f>> corner_list; // keeps list of all corner coordinates
 
+    cv::Mat rvec;
+    cv::Mat tvec;
+    cv::Mat camera_matrix;
+    std::vector<float> dist_coefficients;
+
     // does OR techniques on live video
     if (std::string(argv[1]) == ("video"))
     {
@@ -99,9 +104,41 @@ int main(int argc, const char *argv[])
                 // loops through continuously trying to detec the corners until it finds them, then calc the pos of the camera
                 if (point_list.size() > 0)
                 {
-                    calcPosOfCamera(point_list, corner_list);
-                    // k = 6;
+
+                    calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
+
+                    // print the vectors in real time when detects the grid
+                    std::cout << "\nRVEC: " << std::endl;
+                    for (int i = 0; i < rvec.rows; i++)
+                    {
+                        for (int j = 0; j < rvec.cols; j++)
+                        {
+                            std::cout << rvec.at<cv::Vec2f>(i, j) << std::endl;
+                        }
+                    }
+
+                    std::cout << "\nTVEC: " << std::endl;
+                    for (int i = 0; i < tvec.rows; i++)
+                    {
+                        for (int j = 0; j < tvec.cols; j++)
+                        {
+                            std::cout << tvec.at<cv::Vec2f>(i, j) << std::endl;
+                        }
+                    }
                 }
+            }
+            else if (k == 6)
+            { // project outside corners or 3D axes
+
+                std::vector<cv::Point2f> imagePoints;
+
+                // std::cout << tvec.size() << std::endl;
+                // std::cout << camera_matrix.size() << std::endl;
+                // std::cout << dist_coefficients.size() << std::endl;
+
+                // TODO: only outside 4 corners?
+
+                cv::projectPoints(point_list, rvec, tvec, camera_matrix, dist_coefficients, imagePoints, cv::noArray());
             }
 
             cv::imshow("Video", frame);
@@ -126,6 +163,10 @@ int main(int argc, const char *argv[])
             else if (key == 'p') // calculate the current position of the camera (task 4)
             {
                 k = 5;
+            }
+            else if (key == 'o')
+            { // project outside corners or 3d axes
+                k = 6;
             }
         }
         delete capdev;

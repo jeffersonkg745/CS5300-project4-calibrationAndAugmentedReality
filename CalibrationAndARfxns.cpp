@@ -275,9 +275,12 @@ int getMatrixFromString(std::string matrixString, cv::Mat &camera_matrix)
     return 0;
 }
 
-int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<std::vector<cv::Point2f>> corner_list)
+int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<std::vector<cv::Point2f>> corner_list, cv::Mat &rvec,
+                    cv::Mat &tvec, cv::Mat &camera_matrix, std::vector<float> &dist_coefficients)
 {
-    // get points and corners of the frame that was detected with the board
+
+    // std::vector<float> dist_coefficients;
+    //  get points and corners of the frame that was detected with the board
     std::vector<cv::Vec3f> objectPoints = point_list[point_list.size() - 1];
     std::vector<cv::Point2f> imagePoints = corner_list[corner_list.size() - 1];
 
@@ -285,7 +288,7 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
     std::string matrixString = getLastLineOfFile("CameraMatrix.txt");
 
     // format strings into appropriate matrix and vector data structures
-    cv::Mat camera_matrix;
+
     // getMatrixFromString(matrixString, camera_matrix); //instead of calling, put below for now
 
     // TODO: FIX PROBLEM WITH HELPER FXN
@@ -317,21 +320,24 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
         }
     }
 
-    // get the vector from the last line in the distortion coefficients
-    std::vector<float> dist_coefficients;
-    cv::Mat dist_coeff;
-    std::string distString = getLastLineOfFile("DistortionCoefficients.txt");
-    std::remove(distString.begin(), distString.end(), ' ');
-
-    int z = 0;
-    while (distString.length() > 6)
+    if (dist_coefficients.size() == 0) // don't want to resave this for every time it scans through
     {
-        std::string num = distString.substr(0, distString.find(","));
-        float numFloat = std::stof(num);
-        dist_coefficients.push_back(numFloat);
-        // dist_coeff.at<cv::Vec2f>(0, z) = numFloat;
-        distString.erase(0, distString.find(",") + 1);
-        z += 1;
+
+        // get the vector from the last line in the distortion coefficients
+        cv::Mat dist_coeff;
+        std::string distString = getLastLineOfFile("DistortionCoefficients.txt");
+        std::remove(distString.begin(), distString.end(), ' ');
+
+        int z = 0;
+        while (distString.length() > 6)
+        {
+            std::string num = distString.substr(0, distString.find(","));
+            float numFloat = std::stof(num);
+            dist_coefficients.push_back(numFloat);
+            // dist_coeff.at<cv::Vec2f>(0, z) = numFloat;
+            distString.erase(0, distString.find(",") + 1);
+            z += 1;
+        }
     }
 
     /*
@@ -343,28 +349,8 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
 
     // std::vector<float> rvec;
     // std::vector<float> tvec;
-    cv::Mat rvec;
-    cv::Mat tvec;
 
     cv::solvePnP(objectPoints, imagePoints, camera_matrix, dist_coefficients, rvec, tvec);
-
-    std::cout << "\nRVEC: " << std::endl;
-    for (int i = 0; i < rvec.rows; i++)
-    {
-        for (int j = 0; j < rvec.cols; j++)
-        {
-            std::cout << rvec.at<cv::Vec2f>(i, j) << std::endl;
-        }
-    }
-
-    std::cout << "\nTVEC: " << std::endl;
-    for (int i = 0; i < tvec.rows; i++)
-    {
-        for (int j = 0; j < tvec.cols; j++)
-        {
-            std::cout << tvec.at<cv::Vec2f>(i, j) << std::endl;
-        }
-    }
 
     // std::cout << rvec.rows << std::endl; //3
     // std::cout << rvec.cols << std::endl; //1
