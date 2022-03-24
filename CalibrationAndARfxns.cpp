@@ -41,10 +41,13 @@ int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst, int num, std::vector<std
                          cv::TermCriteria(cv::TermCriteria::Type::MAX_ITER + cv::TermCriteria::Type::EPS, 30, 0.1));
     }
 
-    cv::drawChessboardCorners(dst, pattern_size, cv::Mat(corner_set), pattern_found);
+    if (num < 2)
+    {
+        cv::drawChessboardCorners(dst, pattern_size, cv::Mat(corner_set), pattern_found);
+    }
 
     // save new calibration image for problem 2
-    if (num == 1)
+    if (num >= 1)
     {
         corner_list.push_back(corner_set);
 
@@ -356,6 +359,12 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
     // std::cout << rvec.cols << std::endl; //1
     // std::cout << tvec.rows << std::endl;
     // std::cout << tvec.cols << std::endl;
+
+    return 0;
+}
+
+int drawOurVirtualObject()
+{
 
     return 0;
 }

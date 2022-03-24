@@ -130,7 +130,12 @@ int main(int argc, const char *argv[])
             else if (k == 6)
             { // project outside corners or 3D axes
 
+                // call these to get updated coordinates
+                detectAndExtractCorners(frame, frame, 2, point_list, corner_list);
+                calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
+
                 std::vector<cv::Point2f> imagePoints;
+                std::vector<cv::Vec3f> our_points = point_list[point_list.size() - 1];
 
                 // std::cout << tvec.size() << std::endl;
                 // std::cout << camera_matrix.size() << std::endl;
@@ -138,7 +143,70 @@ int main(int argc, const char *argv[])
 
                 // TODO: only outside 4 corners?
 
-                cv::projectPoints(point_list, rvec, tvec, camera_matrix, dist_coefficients, imagePoints, cv::noArray());
+                cv::projectPoints(our_points, rvec, tvec, camera_matrix, dist_coefficients, imagePoints);
+
+                std::vector<cv::Point2f> cornerPointsOnly;
+
+                for (int i = 0; i < imagePoints.size(); i++)
+                {
+                    std::cout << our_points[i] << std::endl;
+                    // std::cout << imagePoints[i] << std::endl;
+                    if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 8 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    {
+                        cornerPointsOnly.push_back(imagePoints[i]);
+                        std::cout << imagePoints[i] << std::endl;
+                    }
+                }
+
+                for (int i = 0; i < cornerPointsOnly.size(); i++)
+                {
+                    cv::circle(frame, cornerPointsOnly[i], 3, Scalar(0, 0, 255), cv::FILLED, cv::LINE_AA);
+                }
+            }
+            else if (k == 7)
+            {
+                std::vector<cv::Point2f> imagePoints;
+                std::vector<cv::Vec3f> our_points = point_list[point_list.size() - 1];
+                // drawOurVirtualObject();
+                // make a flat rectangle along the board
+                detectAndExtractCorners(frame, frame, 2, point_list, corner_list);
+                calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
+                cv::projectPoints(our_points, rvec, tvec, camera_matrix, dist_coefficients, imagePoints);
+
+                std::vector<cv::Point2f> top;
+                std::vector<cv::Point2f> right;
+                std::vector<cv::Point2f> left;
+                std::vector<cv::Point2f> bottom;
+
+                for (int i = 0; i < imagePoints.size(); i++)
+                {
+
+                    if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 5 && our_points[i][1] == 0) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    {
+                        top.push_back(imagePoints[i]);
+                    }
+
+                    if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 3) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    {
+                        left.push_back(imagePoints[i]);
+                    }
+
+                    if (our_points[i][0] == 0 && our_points[i][1] == 3 || our_points[i][0] == 5 && our_points[i][1] == 3) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    {
+                        bottom.push_back(imagePoints[i]);
+                    }
+                    if (our_points[i][0] == 5 && our_points[i][1] == 0 || our_points[i][0] == 5 && our_points[i][1] == 3) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    {
+                        right.push_back(imagePoints[i]);
+                    }
+                }
+
+                // make the lines for each of the 2 coordinates in each category
+
+                cv::line(frame, top[0], top[1], Scalar(0, 0, 255), 3, 8, 0);
+                cv::line(frame, left[0], left[1], Scalar(250, 135, 206), 3, 8, 0);
+                cv::line(frame, bottom[0], bottom[1], Scalar(0, 0, 255), 3, 8, 0);
+                cv::line(frame, right[0], right[1], Scalar(0, 0, 255), 3, 8, 0);
             }
 
             cv::imshow("Video", frame);
@@ -167,6 +235,10 @@ int main(int argc, const char *argv[])
             else if (key == 'o')
             { // project outside corners or 3d axes
                 k = 6;
+            }
+            else if (key == 'v')
+            { // making a virtual object made out of lines
+                k = 7;
             }
         }
         delete capdev;
