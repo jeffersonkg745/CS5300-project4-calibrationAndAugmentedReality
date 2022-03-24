@@ -13,6 +13,7 @@
 #include <string>
 #include <cstring>
 #include <fstream>
+using namespace cv;
 
 /**
  * @brief Question 1: Detect and extract the chessboard corners (using checkerboard.png).
@@ -156,7 +157,7 @@ std::string printDistCoefficients(std::vector<float> dist_coeff)
 int calibrateOurCamera(cv::Mat &frame, std::vector<std::vector<cv::Vec3f>> &point_list, std::vector<std::vector<cv::Point2f>> &corner_list)
 {
 
-    cv::Size image_size(720, 1280); // not sure
+    cv::Size image_size(720, 1280);
     cv::Mat camera_matrix;
     cv::Size matrix_size(3, 3);
     camera_matrix.create(matrix_size, CV_64FC1);
@@ -175,6 +176,9 @@ int calibrateOurCamera(cv::Mat &frame, std::vector<std::vector<cv::Vec3f>> &poin
     std::vector<cv::Mat> rotation_vec;
     std::vector<cv::Mat> translation_vec;
     double reprojection_error;
+
+    // std::cout << point_list[0].size() << std::endl;
+    // std::cout << corner_list[0].size() << std::endl;
 
     reprojection_error = cv::calibrateCamera(point_list, corner_list, image_size, camera_matrix, dist_coeff, rotation_vec, translation_vec, cv::CALIB_FIX_ASPECT_RATIO);
 
@@ -199,10 +203,10 @@ int calibrateOurCamera(cv::Mat &frame, std::vector<std::vector<cv::Vec3f>> &poin
         std::cout << translation_vec[k] << std::endl;
     }
     */
-
-    writeToFile("CameraMatrix.txt", cameraMatStr);
-    writeToFile("DistortionCoefficients.txt", distortionCoefficients);
-
+    /*
+        writeToFile("CameraMatrix.txt", cameraMatStr);
+        writeToFile("DistortionCoefficients.txt", distortionCoefficients);
+    */
     return 0;
 }
 
@@ -363,8 +367,142 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
     return 0;
 }
 
-int drawOurVirtualObject()
+int detectCornersHarrisFxn(cv::Mat &frame, int num, std::vector<std::vector<cv::Vec3f>> &point_list, std::vector<std::vector<cv::Point2f>> &corner_list)
 {
+    cv::Mat dst = Mat::zeros(frame.size(), CV_32FC1);
+    cv::Mat src_gray;
+    cv::cvtColor(frame, src_gray, cv::COLOR_BGR2GRAY);
+    cv::cornerHarris(src_gray, dst, 2, 3, 0.04);
+
+    // below implementation sourced from: https://docs.opencv.org/3.4/d4/d7d/tutorial_harris_detector.html
+    // explanation on edge detection problem: https://anothertechs.com/programming/cpp/opencv-corner-harris-cpp/
+    Mat dst_norm, dst_norm_scaled;
+    normalize(dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
+    convertScaleAbs(dst_norm, dst_norm_scaled);
+    int thresh = 120;
+    // int thresh = 130; //use 130 for extension
+    int max_thresh = 255;
+
+    std::vector<cv::Point2f> corner_set;
+    std::vector<cv::Vec3f> point_set;
+
+    for (int i = 0; i < dst_norm.rows - 100; i++) // cut off bottom portion b/c of app logo detecting corners
+    {
+        for (int j = 0; j < dst_norm.cols; j++)
+        {
+            if ((int)dst_norm.at<float>(i, j) > thresh) // checks against the threshold to see if edge
+            {
+
+                // save the points found in the corner_set
+                cv::Point2f pointToAdd = Point(j, i);
+
+                if (corner_set.size() == 0)
+                {
+                    corner_set.push_back(pointToAdd);
+                    std::cout << pointToAdd << std::endl;
+                    circle(dst_norm_scaled, Point(j, i), 5, Scalar(0), 2, 8, 0);
+                    continue;
+                }
+
+                // if its different enough then add to corner__set
+                float xDiff = 100;
+                float yDiff = 100;
+
+                // check to see if we already have that corner
+                for (int k = 0; k < corner_set.size(); k++)
+                {
+
+                    cv::Point2f pointToCompare = corner_set[k];
+
+                    // get the smallest difference between all the points
+                    float x = abs(pointToAdd.x - pointToCompare.x);
+                    float y = abs(pointToAdd.y - pointToCompare.y);
+
+                    // get the smallest difference then compare after compare all
+                    if (x < xDiff)
+                    {
+                        xDiff = x;
+                    }
+                    if (y < yDiff)
+                    {
+                        yDiff = y;
+                    }
+                }
+
+                // look at smallest difference of the point we want to add,
+                // if its a bigger difference than ones existing, then add
+                if (xDiff > 5 || yDiff > 5)
+                {
+                    corner_set.push_back(pointToAdd);
+                    std::cout << pointToAdd << std::endl;
+                    circle(dst_norm_scaled, Point(j, i), 5, Scalar(0), 2, 8, 0);
+                }
+            }
+        }
+    }
+
+    std::cout << corner_set.size() << std::endl;
+    frame = dst_norm_scaled;
+
+    // once we find the corner_set, refine it by using:
+    // cv::Mat gray;
+    // cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+
+    // already converted to gray frame above
+    cv::cornerSubPix(dst_norm_scaled, corner_set, cv::Size(19, 13), cv::Size(-1, -1),
+                     cv::TermCriteria(cv::TermCriteria::Type::MAX_ITER + cv::TermCriteria::Type::EPS, 30, 0.1));
+
+    // getting the real world coordinates
+    if (num >= 1)
+    {
+        corner_list.push_back(corner_set);
+
+        int xCoord = 0;
+        int yCoord = 0;
+
+        for (int i = 0; i < corner_set.size(); i++)
+        {
+
+            cv::Vec3f currentCorner = {0, 0, 0}; // {x,y,z}
+
+            currentCorner[0] = xCoord; // x in our case increases going from left to right on the board
+            currentCorner[1] = yCoord; // y in our case increases as go top to bottom on the board
+            currentCorner[2] = 0;      // z is always zero in our case since it points out of the board (+z is pointing away from board)
+
+            // add points to point list
+            point_set.push_back(currentCorner);
+            // std::cout << i << std::endl;
+            // std::cout << currentCorner << std::endl;
+
+            // std::cout << "corner set: x=" << corner_set[i].x << " y=" << corner_set[i].y << std::endl;
+            // std::cout << "our corner in real coord: x=" << currentCorner[0] << "z=" << currentCorner[1] << "y=" << currentCorner[2] << std::endl;
+
+            if (xCoord == 5) // not as clear as the checkerboard (but puts on different rows )
+            {                // not symmetrical due to patter but has 1x4 on first row and 1x3 on second
+                             // unless it detects 8 corners (but shows consistent 7)
+                xCoord = 0;
+                yCoord += 1;
+                continue;
+            }
+
+            xCoord += 1;
+        }
+
+        // add the point set to the point list
+        point_list.push_back(point_set);
+
+        // error checking here
+        if (point_set.size() != corner_set.size())
+        {
+            std::cout << "Point set and corner set should have same number of values." << std::endl;
+        }
+
+        if (point_list.size() != corner_list.size())
+        {
+            std::cout << "Point list and corner list should have same number of values." << std::endl;
+        }
+    }
+    cv::cvtColor(frame, frame, cv::COLOR_GRAY2BGR);
 
     return 0;
 }

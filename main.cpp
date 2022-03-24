@@ -56,6 +56,7 @@ int main(int argc, const char *argv[])
         cv::namedWindow("Video", 1);
         cv::Mat frame;
         int k = 0;
+        int p = 0;
 
         for (;;)
         {
@@ -208,6 +209,20 @@ int main(int argc, const char *argv[])
                 cv::line(frame, bottom[0], bottom[1], Scalar(0, 0, 255), 3, 8, 0);
                 cv::line(frame, right[0], right[1], Scalar(0, 0, 255), 3, 8, 0);
             }
+            else if (k == 8)
+            { // extension: getting AR system to work with a target other than checkerboard (use scalloped pattern)
+                // first need to detect and extract the corners (we will use the Harris corners method- opencv)
+
+                // note this will be called 5 consecutive times to calibrate our camera
+                detectCornersHarrisFxn(frame, 2, point_list, corner_list);
+
+                if (p == 5)
+                {
+                    calibrateOurCamera(frame, point_list, corner_list);
+                    k = 9;
+                }
+                p += 1;
+            }
 
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
@@ -239,6 +254,10 @@ int main(int argc, const char *argv[])
             else if (key == 'v')
             { // making a virtual object made out of lines
                 k = 7;
+            }
+            else if (key == 'e')
+            { // extension: using a different target other than chessboard (scalloped pattern photo here from pinterest)
+                k = 8;
             }
         }
         delete capdev;
@@ -278,29 +297,8 @@ int main(int argc, const char *argv[])
 
             if (k == 1) // detecting robust features (Q7)
             {
-                cv::Mat dst = Mat::zeros(frame.size(), CV_32FC1);
-                cv::Mat src_gray;
-                cv::cvtColor(frame, src_gray, cv::COLOR_BGR2GRAY);
-                cv::cornerHarris(src_gray, dst, 2, 3, 0.04);
-
-                Mat dst_norm, dst_norm_scaled;
-                normalize(dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
-                convertScaleAbs(dst_norm, dst_norm_scaled);
-                int thresh = 120;
-                int max_thresh = 255;
-
-                for (int i = 0; i < dst_norm.rows; i++)
-                {
-                    for (int j = 0; j < dst_norm.cols; j++)
-                    {
-                        if ((int)dst_norm.at<float>(i, j) > thresh) // checks against the threshold to see if edge
-                        {
-                            circle(dst_norm_scaled, Point(j, i), 5, Scalar(0), 2, 8, 0);
-                        }
-                    }
-                }
-
-                frame = dst_norm_scaled;
+                // not necessary for this problem to save new 3d coords so set to 0
+                detectCornersHarrisFxn(frame, 0, point_list, corner_list);
             }
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
