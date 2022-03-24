@@ -245,31 +245,76 @@ int main(int argc, const char *argv[])
         return 0;
     }
 
-    if (std::string(argv[1]) == ("photo"))
+    if (std::string(argv[1]) == ("secondproject"))
     {
-        cv::Mat img = imread("/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/CS5300-project4-calibrationAndAugmentedReality/checkerboard.png", cv::IMREAD_COLOR);
+
+        cv::VideoCapture *capdev;
         cv::Mat dst;
-        std::string currentFeatures;
 
-        if (img.empty())
+        // capture video frame
+        capdev = new cv::VideoCapture(0);
+        if (!capdev->isOpened())
         {
-            std::cout << "could not read the image!" << std::endl;
-            return 1;
+            printf("Unable to open video for you\n");
+            return (-1);
         }
-        imshow("Display window", img);
-        int k = cv::waitKey(0);
 
-        while (k != 'q')
+        // get the properties of the image
+        cv::Size refS((int)capdev->get(cv::CAP_PROP_FRAME_WIDTH),
+                      (int)capdev->get(cv::CAP_PROP_FRAME_HEIGHT));
+
+        cv::namedWindow("Video", 1);
+        cv::Mat frame;
+        int k = 0;
+
+        for (;;)
         {
-
-            if (k == 's') // save the image for testing purposes
+            if (k == 0)
             {
-                imwrite("/Users/kaelynjefferson/Desktop/sampleImageThresholded.jpg", dst);
+                delete capdev;
+                capdev = new cv::VideoCapture(0);
             }
+            *capdev >> frame;
 
-            imshow("Display window", dst);
-            k = cv::waitKey(0);
+            if (k == 1) // detecting robust features (Q7)
+            {
+                cv::Mat dst = Mat::zeros(frame.size(), CV_32FC1);
+                cv::Mat src_gray;
+                cv::cvtColor(frame, src_gray, cv::COLOR_BGR2GRAY);
+                cv::cornerHarris(src_gray, dst, 2, 3, 0.04);
+
+                Mat dst_norm, dst_norm_scaled;
+                normalize(dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
+                convertScaleAbs(dst_norm, dst_norm_scaled);
+                int thresh = 120;
+                int max_thresh = 255;
+
+                for (int i = 0; i < dst_norm.rows; i++)
+                {
+                    for (int j = 0; j < dst_norm.cols; j++)
+                    {
+                        if ((int)dst_norm.at<float>(i, j) > thresh) // checks against the threshold to see if edge
+                        {
+                            circle(dst_norm_scaled, Point(j, i), 5, Scalar(0), 2, 8, 0);
+                        }
+                    }
+                }
+
+                frame = dst_norm_scaled;
+            }
+            cv::imshow("Video", frame);
+            char key = cv::waitKey(10);
+
+            if (key == 'q')
+            {
+                break;
+            }
+            else if (key == 'd') // detecting robust features (Q7)
+            {
+                k = 1;
+            }
         }
+        delete capdev;
+        return 0;
     }
-    return 0;
 }
