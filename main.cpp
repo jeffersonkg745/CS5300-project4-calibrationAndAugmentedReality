@@ -214,14 +214,21 @@ int main(int argc, const char *argv[])
                 // first need to detect and extract the corners (we will use the Harris corners method- opencv)
 
                 // note this will be called 5 consecutive times to calibrate our camera
-                detectCornersHarrisFxn(frame, 2, point_list, corner_list);
 
-                if (p == 5)
-                {
-                    calibrateOurCamera(frame, point_list, corner_list);
-                    k = 9;
-                }
-                p += 1;
+                // TO ME: CALL THIS 5 TIMES, THEN C
+                detectCornersHarrisFxn(frame, 2, point_list, corner_list);
+                std::cout << point_list.size() << std::endl;
+                std::cout << corner_list.size() << std::endl;
+                k = 9;
+
+                /*
+                                if (p == 5)
+                                {
+                                    calibrateOurCamera(frame, point_list, corner_list);
+                                    k = 9;
+                                }
+                                p += 1;
+                                */
             }
 
             cv::imshow("Video", frame);
@@ -298,7 +305,14 @@ int main(int argc, const char *argv[])
             if (k == 1) // detecting robust features (Q7)
             {
                 // not necessary for this problem to save new 3d coords so set to 0
-                detectCornersHarrisFxn(frame, 0, point_list, corner_list);
+                // detectCornersHarrisFxn(frame, 0, point_list, corner_list); //THIS IS FOR QUESTION 7
+
+                // https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga7f02cd21c8352142890190227628fa80
+                cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY); // NEW EXTENSION IDEA
+                Size patternsize(7, 7);
+                std::vector<Point2f> centers;
+                bool patternfound = findCirclesGrid(frame, patternsize, centers);
+                drawChessboardCorners(frame, patternsize, Mat(centers), patternfound);
             }
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
