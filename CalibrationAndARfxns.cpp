@@ -68,7 +68,7 @@ int detectAndExtractCorners(bool isCheckerboard, cv::Mat &src, cv::Mat &dst, int
 
             // add points to point list
             point_set.push_back(currentCorner);
-            std::cout << currentCorner << std::endl;
+            // std::cout << currentCorner << std::endl;
 
             if (isCheckerboard && xCoord == 8)
             {
