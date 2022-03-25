@@ -220,7 +220,16 @@ int main(int argc, const char *argv[])
                 std::vector<cv::Vec3f> our_points = point_list[point_list.size() - 1];
                 // drawOurVirtualObject();
                 // make a flat rectangle along the board
-                detectAndExtractCorners(true, frame, frame, 2, point_list, corner_list);
+
+                if (std::string(argv[2]) == ("checkerboard"))
+                {
+                    detectAndExtractCorners(true, frame, frame, 2, point_list, corner_list);
+                }
+                if (std::string(argv[2]) == ("circle"))
+                {
+                    detectAndExtractCorners(false, frame, frame, 2, point_list, corner_list);
+                }
+
                 calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
                 cv::projectPoints(our_points, rvec, tvec, camera_matrix, dist_coefficients, imagePoints);
 
@@ -259,9 +268,6 @@ int main(int argc, const char *argv[])
                 cv::line(frame, bottom[0], bottom[1], Scalar(0, 0, 255), 3, 8, 0);
                 cv::line(frame, right[0], right[1], Scalar(0, 0, 255), 3, 8, 0);
             }
-            else if (k == 8)
-            { // extension: getting AR system to work with a target other than checkerboard (use scalloped pattern)
-            }
 
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
@@ -294,10 +300,6 @@ int main(int argc, const char *argv[])
             { // making a virtual object made out of lines
                 k = 7;
             }
-            else if (key == 'e')
-            { // extension: using a different target other than chessboard (scalloped pattern photo here from pinterest)
-                k = 8;
-            }
         }
         delete capdev;
         return 0;
@@ -308,8 +310,6 @@ int main(int argc, const char *argv[])
 
         cv::VideoCapture *capdev;
         cv::Mat dst;
-
-        // capture video frame
         capdev = new cv::VideoCapture(0);
         if (!capdev->isOpened())
         {
@@ -337,15 +337,15 @@ int main(int argc, const char *argv[])
             if (k == 1) // detecting robust features (Q7)
             {
                 // not necessary for this problem to save new 3d coords so set to 0
-                // detectCornersHarrisFxn(frame, 0, point_list, corner_list); // THIS IS FOR QUESTION 7
+                detectCornersHarrisFxn(frame, 0, point_list, corner_list); // THIS IS FOR QUESTION 7
 
                 // https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga7f02cd21c8352142890190227628fa80
 
                 // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY); // NEW EXTENSION IDEA
-                Size patternsize(7, 7);
-                std::vector<Point2f> centers;
-                bool patternfound = findCirclesGrid(frame, patternsize, centers);
-                drawChessboardCorners(frame, patternsize, Mat(centers), patternfound);
+                // Size patternsize(7, 7);
+                // std::vector<Point2f> centers;
+                // bool patternfound = findCirclesGrid(frame, patternsize, centers);
+                // drawChessboardCorners(frame, patternsize, Mat(centers), patternfound);
             }
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
