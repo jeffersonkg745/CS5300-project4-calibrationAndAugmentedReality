@@ -69,12 +69,20 @@ int main(int argc, const char *argv[])
 
             if (k == 1) // detect and extract chessboard corners (Q1)
             {
-                detectAndExtractCorners(frame, frame, 0, point_list, corner_list);
+                // if it's a square == true
+                if (std::string(argv[2]) == ("checkerboard"))
+                {
+                    detectAndExtractCorners(true, frame, frame, 0, point_list, corner_list);
+                }
+                else if (std::string(argv[2]) == ("circle"))
+                {
+                    detectAndExtractCorners(false, frame, frame, 0, point_list, corner_list);
+                }
             }
             else if (k == 2) // select calibration images (Q2)
             {
                 // user selects calibration images and updates point_list and corner_list used in question 3
-                detectAndExtractCorners(frame, frame, 1, point_list, corner_list);
+                detectAndExtractCorners(true, frame, frame, 1, point_list, corner_list);
                 std::cout << point_list.size() << std::endl;
                 std::cout << corner_list.size() << std::endl;
 
@@ -100,7 +108,7 @@ int main(int argc, const char *argv[])
             }
             else if (k == 5) // calculate the current position of the camera (task 4)
             {
-                detectAndExtractCorners(frame, frame, 1, point_list, corner_list);
+                detectAndExtractCorners(true, frame, frame, 1, point_list, corner_list);
 
                 // loops through continuously trying to detec the corners until it finds them, then calc the pos of the camera
                 if (point_list.size() > 0)
@@ -132,7 +140,7 @@ int main(int argc, const char *argv[])
             { // project outside corners or 3D axes
 
                 // call these to get updated coordinates
-                detectAndExtractCorners(frame, frame, 2, point_list, corner_list);
+                detectAndExtractCorners(true, frame, frame, 2, point_list, corner_list);
                 calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
 
                 std::vector<cv::Point2f> imagePoints;
@@ -170,7 +178,7 @@ int main(int argc, const char *argv[])
                 std::vector<cv::Vec3f> our_points = point_list[point_list.size() - 1];
                 // drawOurVirtualObject();
                 // make a flat rectangle along the board
-                detectAndExtractCorners(frame, frame, 2, point_list, corner_list);
+                detectAndExtractCorners(true, frame, frame, 2, point_list, corner_list);
                 calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
                 cv::projectPoints(our_points, rvec, tvec, camera_matrix, dist_coefficients, imagePoints);
 
@@ -211,24 +219,6 @@ int main(int argc, const char *argv[])
             }
             else if (k == 8)
             { // extension: getting AR system to work with a target other than checkerboard (use scalloped pattern)
-                // first need to detect and extract the corners (we will use the Harris corners method- opencv)
-
-                // note this will be called 5 consecutive times to calibrate our camera
-
-                // TO ME: CALL THIS 5 TIMES, THEN C
-                detectCornersHarrisFxn(frame, 2, point_list, corner_list);
-                std::cout << point_list.size() << std::endl;
-                std::cout << corner_list.size() << std::endl;
-                k = 9;
-
-                /*
-                                if (p == 5)
-                                {
-                                    calibrateOurCamera(frame, point_list, corner_list);
-                                    k = 9;
-                                }
-                                p += 1;
-                                */
             }
 
             cv::imshow("Video", frame);
@@ -305,10 +295,11 @@ int main(int argc, const char *argv[])
             if (k == 1) // detecting robust features (Q7)
             {
                 // not necessary for this problem to save new 3d coords so set to 0
-                // detectCornersHarrisFxn(frame, 0, point_list, corner_list); //THIS IS FOR QUESTION 7
+                // detectCornersHarrisFxn(frame, 0, point_list, corner_list); // THIS IS FOR QUESTION 7
 
                 // https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga7f02cd21c8352142890190227628fa80
-                cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY); // NEW EXTENSION IDEA
+
+                // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY); // NEW EXTENSION IDEA
                 Size patternsize(7, 7);
                 std::vector<Point2f> centers;
                 bool patternfound = findCirclesGrid(frame, patternsize, centers);

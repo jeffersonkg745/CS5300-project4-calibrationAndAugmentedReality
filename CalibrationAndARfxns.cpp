@@ -20,63 +20,54 @@ using namespace cv;
  *
  * @param src cv::Mat type image
  * @param dst cv::Mat type image
+ * @param int num: 0: doesn't draw corners; 1: adds to corner list; 2: draws corners
  * @return int
  * https://github.com/opencv/opencv/blob/4.x/samples/cpp/tutorial_code/calib3d/camera_calibration/camera_calibration.cpp
  */
-int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst, int num, std::vector<std::vector<cv::Vec3f>> &point_list, std::vector<std::vector<cv::Point2f>> &corner_list)
+int detectAndExtractCorners(bool isCheckerboard, cv::Mat &src, cv::Mat &dst, int num, std::vector<std::vector<cv::Vec3f>> &point_list, std::vector<std::vector<cv::Point2f>> &corner_list)
 {
-    // use for question 2
     std::vector<cv::Vec3f> point_set;
+    std::vector<cv::Point2f> corner_set; // note for circles, this is the "center_set"
 
-    cv::Size pattern_size(9, 6);
-
-    std::vector<cv::Point2f> corner_set;
-    bool pattern_found = findChessboardCorners(src, pattern_size, corner_set, cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK);
-
-    if (pattern_found)
+    if (isCheckerboard)
     {
-        cv::Mat gray;
-        cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
-
-        cv::cornerSubPix(gray, corner_set, cv::Size(19, 13), cv::Size(-1, -1),
-                         cv::TermCriteria(cv::TermCriteria::Type::MAX_ITER + cv::TermCriteria::Type::EPS, 30, 0.1));
+        cv::Size pattern_size(9, 6);
+        bool pattern_found = findChessboardCorners(src, pattern_size, corner_set, cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK);
+        if (pattern_found)
+        {
+            cv::Mat gray;
+            cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
+            cv::cornerSubPix(gray, corner_set, cv::Size(19, 13), cv::Size(-1, -1),
+                             cv::TermCriteria(cv::TermCriteria::Type::MAX_ITER + cv::TermCriteria::Type::EPS, 30, 0.1));
+            cv::drawChessboardCorners(dst, pattern_size, cv::Mat(corner_set), pattern_found);
+        }
     }
 
-    if (num < 2)
+    if (!isCheckerboard)
     {
-        cv::drawChessboardCorners(dst, pattern_size, cv::Mat(corner_set), pattern_found);
+        Size pattern_size(7, 7);
+        bool circle_pattern_found = findCirclesGrid(src, pattern_size, corner_set);
+        if (circle_pattern_found)
+        {
+            drawChessboardCorners(dst, pattern_size, Mat(corner_set), circle_pattern_found);
+        }
     }
 
     // save new calibration image for problem 2
     if (num >= 1)
     {
         corner_list.push_back(corner_set);
-
-        // measure the "real world units" by counting units of checkerboard squares
-        // for (int i = 0; i < corner_set.size(); i++)
-        // {
-        //     std::cout << "corner set: x=" << corner_set[i].x << " y=" << corner_set[i].y << std::endl;
-        // }
-
         int xCoord = 0;
         int yCoord = 0;
-
         for (int i = 0; i < corner_set.size(); i++)
         {
-
             cv::Vec3f currentCorner = {0, 0, 0}; // {x,y,z}
-
-            currentCorner[0] = xCoord; // x in our case increases going from left to right on the board
-            currentCorner[1] = yCoord; // y in our case increases as go top to bottom on the board
-            currentCorner[2] = 0;      // z is always zero in our case since it points out of the board (+z is pointing away from board)
+            currentCorner[0] = xCoord;           // x in our case increases going from left to right on the board
+            currentCorner[1] = yCoord;           // y in our case increases as go top to bottom on the board
+            currentCorner[2] = 0;                // z is always zero in our case since it points out of the board (+z is pointing away from board)
 
             // add points to point list
             point_set.push_back(currentCorner);
-            // std::cout << i << std::endl;
-            // std::cout << currentCorner << std::endl;
-
-            // std::cout << "corner set: x=" << corner_set[i].x << " y=" << corner_set[i].y << std::endl;
-            // std::cout << "our corner in real coord: x=" << currentCorner[0] << "z=" << currentCorner[1] << "y=" << currentCorner[2] << std::endl;
 
             if (xCoord == 8)
             {
@@ -84,7 +75,6 @@ int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst, int num, std::vector<std
                 yCoord += 1;
                 continue;
             }
-
             xCoord += 1;
         }
 
@@ -102,6 +92,10 @@ int detectAndExtractCorners(cv::Mat &src, cv::Mat &dst, int num, std::vector<std
             std::cout << "Point list and corner list should have same number of values." << std::endl;
         }
     }
+
+    // print the number of corners found
+    std::cout << "Number of corners found: " << corner_set.size() << std::endl;
+    std::cout << "first corner shown here: " << corner_set[0] << std::endl;
 
     return 0;
 }
@@ -367,6 +361,7 @@ int calcPosOfCamera(std::vector<std::vector<cv::Vec3f>> point_list, std::vector<
     return 0;
 }
 
+// delete this fxn
 int detectCornersHarrisFxn(cv::Mat &frame, int num, std::vector<std::vector<cv::Vec3f>> &point_list, std::vector<std::vector<cv::Point2f>> &corner_list)
 {
     cv::Mat dst = Mat::zeros(frame.size(), CV_32FC1);
