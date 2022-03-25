@@ -53,7 +53,7 @@ int detectAndExtractCorners(bool isCheckerboard, cv::Mat &src, cv::Mat &dst, int
         }
     }
 
-    // save new calibration image for problem 2
+    // save new calibration image for task 2
     if (num >= 1)
     {
         corner_list.push_back(corner_set);
@@ -68,8 +68,15 @@ int detectAndExtractCorners(bool isCheckerboard, cv::Mat &src, cv::Mat &dst, int
 
             // add points to point list
             point_set.push_back(currentCorner);
+            std::cout << currentCorner << std::endl;
 
-            if (xCoord == 8)
+            if (isCheckerboard && xCoord == 8)
+            {
+                xCoord = 0;
+                yCoord += 1;
+                continue;
+            }
+            if (!isCheckerboard && xCoord == 7)
             {
                 xCoord = 0;
                 yCoord += 1;

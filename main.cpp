@@ -81,17 +81,33 @@ int main(int argc, const char *argv[])
             }
             else if (k == 2) // select calibration images (Q2)
             {
-                // user selects calibration images and updates point_list and corner_list used in question 3
-                detectAndExtractCorners(true, frame, frame, 1, point_list, corner_list);
-                std::cout << point_list.size() << std::endl;
-                std::cout << corner_list.size() << std::endl;
+                // if it's a square == true
+                if (std::string(argv[2]) == ("checkerboard"))
+                {
+                    detectAndExtractCorners(true, frame, frame, 1, point_list, corner_list);
+                    std::cout << point_list.size() << std::endl;
+                    std::cout << corner_list.size() << std::endl;
+                    // saving the image we calibrated with (will overwrite current images if they exist)
+                    std::string imageNum = std::to_string(point_list.size());
+                    std::string path = "/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/CS5300-project4-calibrationAndAugmentedReality/imagesUsedForCalibration/" + imageNum + ".jpg";
+                    imwrite(path, frame);
 
-                // saving the image we calibrated with (will overwrite current images if they exist)
-                std::string imageNum = std::to_string(point_list.size());
-                std::string path = "/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/CS5300-project4-calibrationAndAugmentedReality/imagesUsedForCalibration/" + imageNum + ".jpg";
-                imwrite(path, frame);
+                    k = 1;
+                }
+                else if (std::string(argv[2]) == ("circle"))
+                {
+                    // user selects calibration images and updates point_list and corner_list used in question 3
+                    detectAndExtractCorners(false, frame, frame, 1, point_list, corner_list);
+                    std::cout << point_list.size() << std::endl;
+                    std::cout << corner_list.size() << std::endl;
 
-                k = 1;
+                    // saving the image we calibrated with (will overwrite current images if they exist)
+                    std::string imageNum = std::to_string(point_list.size());
+                    std::string path = "/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/CS5300-project4-calibrationAndAugmentedReality/imagesUsedForCalibrationExt/" + imageNum + ".jpg";
+                    imwrite(path, frame);
+
+                    k = 1;
+                }
             }
             else if (k == 3) // calibrate the camera (task 3)
             {
