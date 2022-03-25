@@ -76,7 +76,7 @@ int detectAndExtractCorners(bool isCheckerboard, cv::Mat &src, cv::Mat &dst, int
                 yCoord += 1;
                 continue;
             }
-            if (!isCheckerboard && xCoord == 7)
+            if (!isCheckerboard && xCoord == 6)
             {
                 xCoord = 0;
                 yCoord += 1;
@@ -181,6 +181,7 @@ int calibrateOurCamera(cv::Mat &frame, std::vector<std::vector<cv::Vec3f>> &poin
     // std::cout << point_list[0].size() << std::endl;
     // std::cout << corner_list[0].size() << std::endl;
 
+    // WORKS FOR SQUARE
     reprojection_error = cv::calibrateCamera(point_list, corner_list, image_size, camera_matrix, dist_coeff, rotation_vec, translation_vec, cv::CALIB_FIX_ASPECT_RATIO);
 
     // printing the corresponding camera matrix, distortion coefficients, and reprojection error
@@ -204,10 +205,10 @@ int calibrateOurCamera(cv::Mat &frame, std::vector<std::vector<cv::Vec3f>> &poin
         std::cout << translation_vec[k] << std::endl;
     }
     */
-    /*
-        writeToFile("CameraMatrix.txt", cameraMatStr);
-        writeToFile("DistortionCoefficients.txt", distortionCoefficients);
-    */
+
+    writeToFile("CameraMatrix.txt", cameraMatStr);
+    writeToFile("DistortionCoefficients.txt", distortionCoefficients);
+
     return 0;
 }
 
