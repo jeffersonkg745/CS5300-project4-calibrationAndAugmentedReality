@@ -1,7 +1,7 @@
 /**
  * Kaelyn Jefferson
- * CS5300 Project 3
- * Main that calls object recognition functions used for project 3.
+ * CS5300 Project 4
+ * Main that calls calibration and augmented reality functions used for project 4.
  */
 
 #include <opencv2/core.hpp>
@@ -20,8 +20,8 @@ using namespace cv;
 /**
  * @brief Main function starts video/photo input and listens for user key functions in the Object recognition system.
  *
- * @param argc 2 values
- * @param argv "./cs5300-project4-calibrationAndAugmentedReality video"
+ * @param argc 3 values
+ * @param argv example : "./cs5300-project4-calibrationAndAugmentedReality video circle"
  * @return int
  */
 int main(int argc, const char *argv[])
@@ -41,7 +41,6 @@ int main(int argc, const char *argv[])
         cv::VideoCapture *capdev;
         cv::Mat dst;
 
-        // capture video frame
         capdev = new cv::VideoCapture(0);
         if (!capdev->isOpened())
         {
@@ -49,7 +48,6 @@ int main(int argc, const char *argv[])
             return (-1);
         }
 
-        // get the properties of the image
         cv::Size refS((int)capdev->get(cv::CAP_PROP_FRAME_WIDTH),
                       (int)capdev->get(cv::CAP_PROP_FRAME_HEIGHT));
 
@@ -69,7 +67,6 @@ int main(int argc, const char *argv[])
 
             if (k == 1) // detect and extract chessboard corners (Q1)
             {
-                // if it's a square == true
                 if (std::string(argv[2]) == ("checkerboard"))
                 {
                     detectAndExtractCorners(true, frame, frame, 0, point_list, corner_list);
@@ -81,17 +78,17 @@ int main(int argc, const char *argv[])
             }
             else if (k == 2) // select calibration images (Q2)
             {
-                // if it's a square == true
                 if (std::string(argv[2]) == ("checkerboard"))
                 {
+                    // user selects calibration images and updates point_list and corner_list used in question 3
                     detectAndExtractCorners(true, frame, frame, 1, point_list, corner_list);
                     std::cout << point_list.size() << std::endl;
                     std::cout << corner_list.size() << std::endl;
+
                     // saving the image we calibrated with (will overwrite current images if they exist)
                     std::string imageNum = std::to_string(point_list.size());
                     std::string path = "/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/CS5300-project4-calibrationAndAugmentedReality/imagesUsedForCalibration/" + imageNum + ".jpg";
                     imwrite(path, frame);
-
                     k = 1;
                 }
                 else if (std::string(argv[2]) == ("circle"))
@@ -105,7 +102,6 @@ int main(int argc, const char *argv[])
                     std::string imageNum = std::to_string(point_list.size());
                     std::string path = "/Users/kaelynjefferson/Documents/NEU/MSCS/MSCS semesters/2022 Spring/CS5300-project4-calibrationAndAugmentedReality/imagesUsedForCalibrationExt/" + imageNum + ".jpg";
                     imwrite(path, frame);
-
                     k = 1;
                 }
             }
@@ -132,7 +128,7 @@ int main(int argc, const char *argv[])
                     detectAndExtractCorners(false, frame, frame, 1, point_list, corner_list);
                 }
 
-                // loops through continuously trying to detec the corners until it finds them, then calc the pos of the camera
+                // loops through continuously trying to detect the corners until it finds them, then calc the pos of the camera
                 if (point_list.size() > 0)
                 {
 
@@ -158,8 +154,8 @@ int main(int argc, const char *argv[])
                     }
                 }
             }
-            else if (k == 6)
-            { // project outside corners or 3D axes
+            else if (k == 6) // project outside corners or 3D axes
+            {
 
                 // call these to get updated coordinates
                 if (std::string(argv[2]) == ("checkerboard"))
@@ -174,22 +170,14 @@ int main(int argc, const char *argv[])
                 if (point_list.size() > 0)
                 {
                     calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
-
                     std::vector<cv::Point2f> imagePoints;
                     std::vector<cv::Vec3f> our_points = point_list[point_list.size() - 1];
-
-                    // std::cout << tvec.size() << std::endl;
-                    // std::cout << camera_matrix.size() << std::endl;
-                    // std::cout << dist_coefficients.size() << std::endl;
-
                     cv::projectPoints(our_points, rvec, tvec, camera_matrix, dist_coefficients, imagePoints);
-
                     std::vector<cv::Point2f> cornerPointsOnly;
 
                     for (int i = 0; i < imagePoints.size(); i++)
                     {
                         std::cout << our_points[i] << std::endl;
-                        // std::cout << imagePoints[i] << std::endl;
                         if (std::string(argv[2]) == ("checkerboard")) // these are the corner points for checkerboard
                         {
                             if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 8 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
@@ -198,7 +186,7 @@ int main(int argc, const char *argv[])
                                 std::cout << imagePoints[i] << std::endl;
                             }
                         }
-                        if (std::string(argv[2]) == ("circle")) // these are the corner points for checkerboard
+                        if (std::string(argv[2]) == ("circle")) // these are the corner points for circle
                         {
                             if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 6 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 6 || our_points[i][0] == 6 && our_points[i][1] == 6)
                             {
@@ -214,12 +202,10 @@ int main(int argc, const char *argv[])
                     }
                 }
             }
-            else if (k == 7)
+            else if (k == 7) // draws the virtual object
             {
                 std::vector<cv::Point2f> imagePoints;
                 std::vector<cv::Vec3f> our_points = point_list[point_list.size() - 1];
-                // drawOurVirtualObject();
-                // make a flat rectangle along the board
 
                 if (std::string(argv[2]) == ("checkerboard"))
                 {
@@ -240,7 +226,6 @@ int main(int argc, const char *argv[])
 
                 for (int i = 0; i < imagePoints.size(); i++)
                 {
-
                     if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 5 && our_points[i][1] == 0) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
                     {
                         top.push_back(imagePoints[i]);
@@ -262,7 +247,6 @@ int main(int argc, const char *argv[])
                 }
 
                 // make the lines for each of the 2 coordinates in each category
-
                 cv::line(frame, top[0], top[1], Scalar(0, 0, 255), 3, 8, 0);
                 cv::line(frame, left[0], left[1], Scalar(250, 135, 206), 3, 8, 0);
                 cv::line(frame, bottom[0], bottom[1], Scalar(0, 0, 255), 3, 8, 0);
@@ -276,11 +260,11 @@ int main(int argc, const char *argv[])
             {
                 break;
             }
-            else if (key == 'd') // detect and extract chessboard corners (Q1)
+            else if (key == 'd') // detect and extract chessboard corners (task 1)
             {
                 k = 1;
             }
-            else if (key == 's') // select calibration images (Q2)
+            else if (key == 's') // select calibration images (task 2)
             {
                 k = 2;
             }
@@ -292,12 +276,12 @@ int main(int argc, const char *argv[])
             {
                 k = 5;
             }
-            else if (key == 'o')
-            { // project outside corners or 3d axes
+            else if (key == 'o') // project outside corners or 3d axes (task 5)
+            {
                 k = 6;
             }
-            else if (key == 'v')
-            { // making a virtual object made out of lines
+            else if (key == 'v') // making a virtual object made out of lines (task 6)
+            {
                 k = 7;
             }
         }
@@ -307,7 +291,6 @@ int main(int argc, const char *argv[])
 
     if (std::string(argv[1]) == ("secondproject"))
     {
-
         cv::VideoCapture *capdev;
         cv::Mat dst;
         capdev = new cv::VideoCapture(0);
@@ -317,10 +300,8 @@ int main(int argc, const char *argv[])
             return (-1);
         }
 
-        // get the properties of the image
         cv::Size refS((int)capdev->get(cv::CAP_PROP_FRAME_WIDTH),
                       (int)capdev->get(cv::CAP_PROP_FRAME_HEIGHT));
-
         cv::namedWindow("Video", 1);
         cv::Mat frame;
         int k = 0;
@@ -336,16 +317,8 @@ int main(int argc, const char *argv[])
 
             if (k == 1) // detecting robust features (Q7)
             {
-                // not necessary for this problem to save new 3d coords so set to 0
-                detectCornersHarrisFxn(frame, 0, point_list, corner_list); // THIS IS FOR QUESTION 7
-
-                // https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html#ga7f02cd21c8352142890190227628fa80
-
-                // cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY); // NEW EXTENSION IDEA
-                // Size patternsize(7, 7);
-                // std::vector<Point2f> centers;
-                // bool patternfound = findCirclesGrid(frame, patternsize, centers);
-                // drawChessboardCorners(frame, patternsize, Mat(centers), patternfound);
+                // not necessary for this problem to save new 3d coords so set parameter to 0
+                detectCornersHarrisFxn(frame, 0, point_list, corner_list); // detecting robust features (task 7)
             }
             cv::imshow("Video", frame);
             char key = cv::waitKey(10);
