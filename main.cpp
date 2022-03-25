@@ -162,36 +162,56 @@ int main(int argc, const char *argv[])
             { // project outside corners or 3D axes
 
                 // call these to get updated coordinates
-                detectAndExtractCorners(true, frame, frame, 2, point_list, corner_list);
-                calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
-
-                std::vector<cv::Point2f> imagePoints;
-                std::vector<cv::Vec3f> our_points = point_list[point_list.size() - 1];
-
-                // std::cout << tvec.size() << std::endl;
-                // std::cout << camera_matrix.size() << std::endl;
-                // std::cout << dist_coefficients.size() << std::endl;
-
-                // TODO: only outside 4 corners?
-
-                cv::projectPoints(our_points, rvec, tvec, camera_matrix, dist_coefficients, imagePoints);
-
-                std::vector<cv::Point2f> cornerPointsOnly;
-
-                for (int i = 0; i < imagePoints.size(); i++)
+                if (std::string(argv[2]) == ("checkerboard"))
                 {
-                    std::cout << our_points[i] << std::endl;
-                    // std::cout << imagePoints[i] << std::endl;
-                    if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 8 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
-                    {
-                        cornerPointsOnly.push_back(imagePoints[i]);
-                        std::cout << imagePoints[i] << std::endl;
-                    }
+                    detectAndExtractCorners(true, frame, frame, 2, point_list, corner_list);
+                }
+                if (std::string(argv[2]) == ("circle"))
+                {
+                    detectAndExtractCorners(false, frame, frame, 2, point_list, corner_list);
                 }
 
-                for (int i = 0; i < cornerPointsOnly.size(); i++)
+                if (point_list.size() > 0)
                 {
-                    cv::circle(frame, cornerPointsOnly[i], 3, Scalar(0, 0, 255), cv::FILLED, cv::LINE_AA);
+                    calcPosOfCamera(point_list, corner_list, rvec, tvec, camera_matrix, dist_coefficients);
+
+                    std::vector<cv::Point2f> imagePoints;
+                    std::vector<cv::Vec3f> our_points = point_list[point_list.size() - 1];
+
+                    // std::cout << tvec.size() << std::endl;
+                    // std::cout << camera_matrix.size() << std::endl;
+                    // std::cout << dist_coefficients.size() << std::endl;
+
+                    cv::projectPoints(our_points, rvec, tvec, camera_matrix, dist_coefficients, imagePoints);
+
+                    std::vector<cv::Point2f> cornerPointsOnly;
+
+                    for (int i = 0; i < imagePoints.size(); i++)
+                    {
+                        std::cout << our_points[i] << std::endl;
+                        // std::cout << imagePoints[i] << std::endl;
+                        if (std::string(argv[2]) == ("checkerboard")) // these are the corner points for checkerboard
+                        {
+                            if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 8 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                            {
+                                cornerPointsOnly.push_back(imagePoints[i]);
+                                std::cout << imagePoints[i] << std::endl;
+                            }
+                        }
+                        if (std::string(argv[2]) == ("circle")) // these are the corner points for checkerboard
+                        {
+                            if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 6 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 6 || our_points[i][0] == 6 && our_points[i][1] == 6)
+                            {
+                                cornerPointsOnly.push_back(imagePoints[i]);
+                                std::cout << imagePoints[i] << std::endl;
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < cornerPointsOnly.size(); i++)
+                    {
+                        cv::circle(frame, cornerPointsOnly[i], 3, Scalar(0, 0, 255), cv::FILLED, cv::LINE_AA);
+                    }
                 }
             }
             else if (k == 7)

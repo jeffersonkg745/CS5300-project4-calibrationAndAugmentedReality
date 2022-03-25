@@ -33,7 +33,7 @@ int detectAndExtractCorners(bool isCheckerboard, cv::Mat &src, cv::Mat &dst, int
     {
         cv::Size pattern_size(9, 6);
         bool pattern_found = findChessboardCorners(src, pattern_size, corner_set, cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK);
-        if (pattern_found)
+        if (pattern_found && num != 2)
         {
             cv::Mat gray;
             cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY);
@@ -47,7 +47,7 @@ int detectAndExtractCorners(bool isCheckerboard, cv::Mat &src, cv::Mat &dst, int
     {
         Size pattern_size(7, 7);
         bool circle_pattern_found = findCirclesGrid(src, pattern_size, corner_set);
-        if (circle_pattern_found)
+        if (circle_pattern_found && num != 2)
         {
             drawChessboardCorners(dst, pattern_size, Mat(corner_set), circle_pattern_found);
         }
