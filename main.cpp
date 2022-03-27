@@ -226,21 +226,21 @@ int main(int argc, const char *argv[])
 
                 for (int i = 0; i < imagePoints.size(); i++)
                 {
-                    if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 5 && our_points[i][1] == 0) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 5 && our_points[i][1] == 0)
                     {
                         top.push_back(imagePoints[i]);
                     }
 
-                    if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 3) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    if (our_points[i][0] == 0 && our_points[i][1] == 0 || our_points[i][0] == 0 && our_points[i][1] == 3)
                     {
                         left.push_back(imagePoints[i]);
                     }
 
-                    if (our_points[i][0] == 0 && our_points[i][1] == 3 || our_points[i][0] == 5 && our_points[i][1] == 3) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    if (our_points[i][0] == 0 && our_points[i][1] == 3 || our_points[i][0] == 5 && our_points[i][1] == 3)
                     {
                         bottom.push_back(imagePoints[i]);
                     }
-                    if (our_points[i][0] == 5 && our_points[i][1] == 0 || our_points[i][0] == 5 && our_points[i][1] == 3) //|| our_points[i][0] == 0 && our_points[i][1] == 5 || our_points[i][0] == 8 && our_points[i][1] == 5)
+                    if (our_points[i][0] == 5 && our_points[i][1] == 0 || our_points[i][0] == 5 && our_points[i][1] == 3)
                     {
                         right.push_back(imagePoints[i]);
                     }

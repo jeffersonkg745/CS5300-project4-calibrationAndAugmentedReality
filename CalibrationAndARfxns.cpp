@@ -394,17 +394,18 @@ int detectCornersHarrisFxn(cv::Mat &frame, int num, std::vector<std::vector<cv::
     cv::cvtColor(frame, src_gray, cv::COLOR_BGR2GRAY);
     cv::cornerHarris(src_gray, dst, 2, 3, 0.04);
 
-    // below implementation sourced from: https://docs.opencv.org/3.4/d4/d7d/tutorial_harris_detector.html
+    // code implementation sourced from: https://docs.opencv.org/3.4/d4/d7d/tutorial_harris_detector.html
     Mat dst_norm, dst_norm_scaled;
     normalize(dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
     convertScaleAbs(dst_norm, dst_norm_scaled);
-    // code referenced for trouble with threshold: https://anothertechs.com/programming/cpp/opencv-corner-harris-cpp/
+    // code referenced for trouble with threshold affecting corner detection: https://anothertechs.com/programming/cpp/opencv-corner-harris-cpp/
     int thresh = 120;
     int max_thresh = 255;
 
     std::vector<cv::Point2f> corner_set;
     std::vector<cv::Vec3f> point_set;
 
+    // code implementation sourced from: https://docs.opencv.org/3.4/d4/d7d/tutorial_harris_detector.html
     for (int i = 0; i < dst_norm.rows - 100; i++) // cut off bottom portion b/c of app logo detecting corners
     {
         for (int j = 0; j < dst_norm.cols; j++)
@@ -462,7 +463,8 @@ int detectCornersHarrisFxn(cv::Mat &frame, int num, std::vector<std::vector<cv::
     std::cout << corner_set.size() << std::endl;
     frame = dst_norm_scaled;
 
-    // already converted to gray frame above
+    // this part is similar to my first function 'detectAndExtractCorners'
+    //  already converted to gray frame above
     cv::cornerSubPix(dst_norm_scaled, corner_set, cv::Size(19, 13), cv::Size(-1, -1),
                      cv::TermCriteria(cv::TermCriteria::Type::MAX_ITER + cv::TermCriteria::Type::EPS, 30, 0.1));
 
@@ -470,18 +472,15 @@ int detectCornersHarrisFxn(cv::Mat &frame, int num, std::vector<std::vector<cv::
     if (num >= 1)
     {
         corner_list.push_back(corner_set);
-
         int xCoord = 0;
         int yCoord = 0;
 
         for (int i = 0; i < corner_set.size(); i++)
         {
-
             cv::Vec3f currentCorner = {0, 0, 0}; // {x,y,z}
-
-            currentCorner[0] = xCoord; // x in our case increases going from left to right on the board
-            currentCorner[1] = yCoord; // y in our case increases as go top to bottom on the board
-            currentCorner[2] = 0;      // z is always zero in our case since it points out of the board (+z is pointing away from board)
+            currentCorner[0] = xCoord;           // x in our case increases going from left to right on the board
+            currentCorner[1] = yCoord;           // y in our case increases as go top to bottom on the board
+            currentCorner[2] = 0;                // z is always zero in our case since it points out of the board (+z is pointing away from board)
 
             // add points to point list
             point_set.push_back(currentCorner);
@@ -493,7 +492,6 @@ int detectCornersHarrisFxn(cv::Mat &frame, int num, std::vector<std::vector<cv::
                 yCoord += 1;
                 continue;
             }
-
             xCoord += 1;
         }
 
